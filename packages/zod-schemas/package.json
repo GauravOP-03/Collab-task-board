@@ -1,0 +1,21 @@
+{
+  "name": "zod-schemas",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.11.0",
+  "dependencies": {
+    "zod": "^3.25.74"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3"
+  }
+}
