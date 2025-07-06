@@ -1,14 +1,15 @@
 import React from 'react';
-import { Edit2, Trash2, Calendar } from 'lucide-react';
+import { Trash2, Calendar } from 'lucide-react';
 import type { Task } from '../../types/KanbanBoardTypes';
 
 interface Props {
     task: Task;
     onDragStart: () => void;
     deleteTask: (taskId: string) => void;
+    onClick: () => void;
 }
 
-const TaskCard: React.FC<Props> = ({ task, onDragStart, deleteTask }) => {
+const TaskCard: React.FC<Props> = ({ task, onDragStart, deleteTask, onClick }) => {
     const getPriorityColor = (priority: string) => {
         switch (priority) {
             case 'high':
@@ -27,6 +28,7 @@ const TaskCard: React.FC<Props> = ({ task, onDragStart, deleteTask }) => {
             className="task-card"
             draggable
             onDragStart={onDragStart}
+            onClick={onClick}
         >
             <div className="task-card-header">
                 <h3 className="task-title">{task.title}</h3>
@@ -35,9 +37,6 @@ const TaskCard: React.FC<Props> = ({ task, onDragStart, deleteTask }) => {
                         className="priority-dot"
                         style={{ backgroundColor: getPriorityColor(task.priority) }}
                     />
-                    <button>
-                        <Edit2 size={12} />
-                    </button>
                     <button onClick={() => deleteTask(task._id)}>
                         <Trash2 size={12} color="#EF4444" />
                     </button>
@@ -56,7 +55,8 @@ const TaskCard: React.FC<Props> = ({ task, onDragStart, deleteTask }) => {
                     <div
                         key={user._id}
                         className="assignee-avatar"
-                        title={user.name}
+                        title={user.username}
+                        style={{ backgroundColor: '#007bff' }}
                     >
                         {user.username.charAt(0).toUpperCase()}
                     </div>

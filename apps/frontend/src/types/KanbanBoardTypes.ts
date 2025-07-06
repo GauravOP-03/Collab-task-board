@@ -20,6 +20,7 @@ export type Task = {
 };
 
 export type TaskInput = {
+  _id?: string;
   title: string;
   description: string;
   assignees: string[];

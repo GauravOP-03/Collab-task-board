@@ -25,8 +25,8 @@ const KanbanBoard: React.FC = () => {
         (async () => {
             try {
                 const { data: tasksResp } = await axiosInstance.get('/tasks');
-                console.log(tasksResp.data);
-                const tasks: Task[] = tasksResp.data;
+                // console.log(tasksResp.data);
+                const tasks: Task[] = tasksResp.data || [];
 
                 // Group tasks into columns
                 const updatedColumns = columnMetadata.map(col => ({
@@ -80,21 +80,40 @@ const KanbanBoard: React.FC = () => {
     };
 
     const addTask = async (task: Partial<TaskInput>) => {
-        // open AddTaskModal will POST new task and then:
         try {
-
             const res = await axiosInstance.post(`/tasks`, task);
 
-            setColumns(prev => prev.map(col =>
-                col.id === res.data.column
-                    ? { ...col, tasks: [...col.tasks, res.data] }
-                    : col
-            ));
+            setColumns(prev =>
+                prev.map(col => {
+                    if (col.id === res.data.data.column) {
+                        return {
+                            ...col,
+                            tasks: [...col.tasks, res.data.data],
+                        };
+                    }
+                    return col;
+                })
+            );
         } catch (e) {
             console.error("Error adding task:", e);
         }
         setShowAddTask(false);
     };
+
+
+    const editTask = async (task: Partial<TaskInput>) => {
+        try {
+            const res = await axiosInstance.put(`/tasks/${task._id}`, task);
+            console.log(res.data.data);
+            setColumns(prev => prev.map(col => ({
+                ...col,
+                tasks: col.tasks.map(t => t._id === task._id ? res.data.data : t)
+            })));
+            // console.log(task.data.data)
+        } catch (e) {
+            console.error("Error editing task", e);
+        }
+    }
 
     const deleteTask = async (taskId: string) => {
         try {
@@ -133,6 +152,8 @@ const KanbanBoard: React.FC = () => {
                         draggedOver={draggedOver}
                         setDraggedOver={setDraggedOver}
                         deleteTask={deleteTask}
+                        editTask={editTask}
+                        users={users}
                     />
                 ))}
             </div>

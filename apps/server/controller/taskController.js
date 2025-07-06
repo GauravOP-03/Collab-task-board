@@ -22,7 +22,13 @@ exports.createTask = async (req, res) => {
       tags,
       assignedBy: req.user.userId,
     });
-    const newTask = await task.save();
+    const savedTask = await task.save();
+
+    const newTask = await Task.populate(savedTask, [
+      { path: "assignedBy", select: "username email" },
+      { path: "assignees", select: "username email" },
+    ]);
+
     res
       .status(201)
       .json({ data: newTask, message: "Task created successfully" });
@@ -38,7 +44,8 @@ exports.getUserTasks = async (req, res) => {
     const allTasks = await Task.find({
       $or: [{ assignees: req.user.userId }, { assignedBy: req.user.userId }],
     })
-      .populate("assignees", "name email")
+      .populate("assignedBy", "username email")
+      .populate("assignees", "username email")
       .exec();
     if (!allTasks || allTasks.length === 0) {
       return res.json({ message: "No tasks found for this user" });
@@ -64,7 +71,7 @@ exports.getUserTasks = async (req, res) => {
 exports.deleteTask = async (req, res) => {
   try {
     const { taskId } = req.params;
-    const deletedTask = await findByIdAndDelete(taskId);
+    const deletedTask = await Task.findByIdAndDelete(taskId);
     if (!deletedTask)
       return res.status(400).json({ message: "Task not found" });
 
@@ -94,7 +101,9 @@ exports.updateTask = async (req, res) => {
         tags,
       },
       { new: true }
-    ).populate("assignees", "name email");
+    )
+      .populate("assignedBy", "username email")
+      .populate("assignees", "username email");
 
     if (!updatedTask)
       return res.status(404).json({ message: "Task not found" });

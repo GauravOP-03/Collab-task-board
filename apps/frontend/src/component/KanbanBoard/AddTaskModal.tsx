@@ -1,7 +1,7 @@
 import React, { useState, type KeyboardEvent } from "react";
 import { X, Loader2 } from "lucide-react";
 import type { User, TaskInput } from "../../types/KanbanBoardTypes";
-import "../../styles/AddTaskModel.css";
+import "../../styles/AddTaskModal.css";
 
 interface Props {
     users: User[];
