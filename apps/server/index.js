@@ -49,6 +49,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", require("./routes/auth"));
+app.use("/api/users", require("./routers/user"));
+app.use("/api/task", require("./routes/task"));
 
 socketServer(io);
 
