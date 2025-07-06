@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Settings } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import Column from './Column';
 import AddTaskModal from './AddTaskModal';
 import type { User, Column as ColumnType, Task, TaskInput } from '../../types/KanbanBoardTypes';
@@ -7,7 +7,14 @@ import axiosInstance from '../../lib/axiosInstance';
 import '../../styles/KanbanBoard.css';
 
 const KanbanBoard: React.FC = () => {
-    const [columns, setColumns] = useState<ColumnType[]>([]);
+    const columnMetadata: ColumnType[] = React.useMemo(() => [
+        { id: "todo", title: "To Do", color: "#FF5733", tasks: [] },
+        { id: "inprogress", title: "In Progress", color: "#33A1FF", tasks: [] },
+        { id: "done", title: "Done", color: "#28A745", tasks: [] },
+    ], []);
+
+    const [columns, setColumns] = useState<ColumnType[]>(columnMetadata);
+
     const [users, setUsers] = useState<User[]>([]);
     const [draggedTask, setDraggedTask] = useState<Task | null>(null);
     const [draggedOver, setDraggedOver] = useState<string | null>(null);
@@ -17,9 +24,16 @@ const KanbanBoard: React.FC = () => {
     useEffect(() => {
         (async () => {
             try {
-                const { data: colsResp } = await axiosInstance.get('/tasks');
-                console.log(colsResp)
-                setColumns(colsResp.data);
+                const { data: tasksResp } = await axiosInstance.get('/tasks');
+                console.log(tasksResp.data);
+                const tasks: Task[] = tasksResp.data;
+
+                // Group tasks into columns
+                const updatedColumns = columnMetadata.map(col => ({
+                    ...col,
+                    tasks: tasks.filter(t => t.column === col.id),
+                }));
+                setColumns(updatedColumns);
 
                 const { data: usersResp } = await axiosInstance.get('/users');
                 console.log(usersResp);
@@ -28,7 +42,7 @@ const KanbanBoard: React.FC = () => {
                 console.error(e);
             }
         })();
-    }, []);
+    }, [columnMetadata]);
 
     const handleDragStart = (task: Task) => {
         setDraggedTask(task);
@@ -48,8 +62,15 @@ const KanbanBoard: React.FC = () => {
             });
 
             // re-fetch grouped columns
-            const { data: colsResp } = await axiosInstance.get('/tasks');
-            setColumns(colsResp.data);
+            const { data: tasksResp } = await axiosInstance.get('/tasks');
+            const tasks: Task[] = tasksResp.data;
+
+            const updatedColumns = columnMetadata.map(col => ({
+                ...col,
+                tasks: tasks.filter(t => t.column === col.id),
+            }));
+
+            setColumns(updatedColumns);
         } catch (e) {
             console.error(e);
         } finally {
@@ -93,9 +114,6 @@ const KanbanBoard: React.FC = () => {
             <div className="board-header">
                 <h1 className="board-title">Project Kanban Board</h1>
                 <div>
-                    <button className="button button-settings">
-                        <Settings size={16} /> Settings
-                    </button>
                     <button
                         className="button button-add"
                         onClick={() => setShowAddTask(true)}

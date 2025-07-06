@@ -14,3 +14,5 @@ router.post("/", verifyToken, createTask);
 router.delete("/:taskId", verifyToken, deleteTask);
 router.patch("/:taskId", verifyToken, updateTask);
 router.patch("/:taskId/column", verifyToken, updateTaskColumn);
+
+module.exports = router;

@@ -20,6 +20,7 @@ exports.createTask = async (req, res) => {
       dueDate,
       column,
       tags,
+      assignedBy: req.user.userId,
     });
     const newTask = await task.save();
     res
@@ -34,15 +35,25 @@ exports.createTask = async (req, res) => {
 
 exports.getUserTasks = async (req, res) => {
   try {
-    const allTask = await Task.find({ assignees: req.user._id })
+    const allTasks = await Task.find({
+      $or: [{ assignees: req.user.userId }, { assignedBy: req.user.userId }],
+    })
       .populate("assignees", "name email")
       .exec();
-    if (!allTask || allTask.length === 0) {
-      return res.status(404).json({ message: "No tasks found for this user" });
+    if (!allTasks || allTasks.length === 0) {
+      return res.json({ message: "No tasks found for this user" });
     }
-    res
-      .status(200)
-      .json({ data: allTask, message: "Tasks retrieved successfully" });
+
+    // const groupedColumns = [
+    //   allTasks.filter((task) => task.column === "todo"),
+    //   allTasks.filter((task) => task.column === "inprogress"),
+    //   allTasks.filter((task) => task.column === "done"),
+    // ];
+
+    res.status(200).json({
+      data: allTasks,
+      message: "Tasks retrieved successfully",
+    });
   } catch (e) {
     res.status(500).json({
       message: e.message || "An error occurred while retrieving tasks",
@@ -119,16 +130,9 @@ exports.updateTaskColumn = async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    const allTasks = await Task.find().populate("assignees", "name email");
-
-    const groupedColumns = {
-      todo: allTasks.filter((task) => task.column === "todo"),
-      inprogress: allTasks.filter((task) => task.column === "inprogress"),
-      done: allTasks.filter((task) => task.column === "done"),
-    };
-
+    // Return updated task
     res.status(200).json({
-      data: groupedColumns,
+      data: updatedTask,
       message: "Task column updated successfully",
     });
   } catch (e) {
