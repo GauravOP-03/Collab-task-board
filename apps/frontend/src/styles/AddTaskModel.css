@@ -1,0 +1,152 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  width: 500px;
+  max-width: 90%;
+  padding: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-body label {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-body input[type="text"],
+.modal-body input[type="date"],
+.modal-body textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.modal-body textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.user-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  cursor: pointer;
+  background: #f5f5f5;
+  transition: all 0.2s ease;
+}
+
+.user-chip.selected {
+  background: #4f46e5;
+  color: #fff;
+  border-color: #4f46e5;
+}
+
+.user-chip .avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ddd;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  margin-right: 6px;
+  font-size: 12px;
+}
+
+.button-add {
+  width: 100%;
+  padding: 10px;
+  background: #4f46e5;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: background 0.3s ease;
+}
+
+.button-add:hover {
+  background: #4338ca;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.loading-flex {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.button-add[disabled] {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.modal-close-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

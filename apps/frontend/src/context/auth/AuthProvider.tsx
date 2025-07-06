@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     setUser(null);
                 }
             } else {
-                console.error("Error fetching user", e);
+                // console.error("Error fetching user", e);
                 setUser(null);
             }
         } finally {

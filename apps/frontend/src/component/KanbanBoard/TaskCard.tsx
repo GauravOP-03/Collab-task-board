@@ -38,7 +38,7 @@ const TaskCard: React.FC<Props> = ({ task, onDragStart, deleteTask }) => {
                     <button>
                         <Edit2 size={12} />
                     </button>
-                    <button onClick={() => deleteTask(task.id)}>
+                    <button onClick={() => deleteTask(task._id)}>
                         <Trash2 size={12} color="#EF4444" />
                     </button>
                 </div>
@@ -54,17 +54,16 @@ const TaskCard: React.FC<Props> = ({ task, onDragStart, deleteTask }) => {
             <div>
                 {task.assignees.map(user => (
                     <div
-                        key={user.id}
+                        key={user._id}
                         className="assignee-avatar"
-                        style={{ backgroundColor: user.color }}
                         title={user.name}
                     >
-                        {user.avatar}
+                        {user.username.charAt(0).toUpperCase()}
                     </div>
                 ))}
                 <div>
                     <Calendar size={12} />
-                    {task.dueDate}
+                    {new Date(task.dueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                 </div>
             </div>
         </div>

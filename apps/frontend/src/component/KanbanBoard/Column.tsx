@@ -44,7 +44,7 @@ const Column: React.FC<Props> = ({
         </div>
         {column.tasks.map(task => (
             <TaskCard
-                key={task.id}
+                key={task._id}
                 task={task}
                 onDragStart={() => onDragStart(task)}
                 deleteTask={deleteTask}

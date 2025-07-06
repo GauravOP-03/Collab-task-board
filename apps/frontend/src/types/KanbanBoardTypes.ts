@@ -1,21 +1,34 @@
 export interface User {
-  id: string;
+  _id: string;
   name: string;
-  avatar: string;
-  color: string;
+  email: string;
+  username: string;
 }
 
 export type Task = {
-  id: string;
+  _id: string;
   title: string;
   description: string;
   assignees: User[];
+  assignedBy: User;
   priority: "high" | "medium" | "low";
   dueDate: string;
   tags: string[];
   column: "todo" | "inprogress" | "done";
   createdAt: string;
+  updatedAt: string;
 };
+
+export type TaskInput = {
+  title: string;
+  description: string;
+  assignees: string[];
+  priority: "high" | "medium" | "low";
+  dueDate: string;
+  tags: string[];
+  column: "todo" | "inprogress" | "done";
+};
+
 export interface Column {
   id: string;
   title: string;
