@@ -5,8 +5,13 @@ import AddTaskModal from './AddTaskModal';
 import type { User, Column as ColumnType, Task, TaskInput } from '../../types/KanbanBoardTypes';
 import axiosInstance from '../../lib/axiosInstance';
 import '../../styles/KanbanBoard.css';
+import { useSocket } from "../../context/socket/useSocket"
+import { useAuth } from "../../context/auth/useAuth"
 
 const KanbanBoard: React.FC = () => {
+
+    const { socket, loading } = useSocket();
+    const { user } = useAuth();
     const columnMetadata: ColumnType[] = React.useMemo(() => [
         { id: "todo", title: "To Do", color: "#FF5733", tasks: [] },
         { id: "inprogress", title: "In Progress", color: "#33A1FF", tasks: [] },
@@ -19,6 +24,68 @@ const KanbanBoard: React.FC = () => {
     const [draggedTask, setDraggedTask] = useState<Task | null>(null);
     const [draggedOver, setDraggedOver] = useState<string | null>(null);
     const [showAddTask, setShowAddTask] = useState(false);
+
+
+
+    useEffect(() => {
+        console.log(socket)
+        if (!socket || loading) {
+            console.log("Waiting for socket to initialize...");
+            return;
+        }
+        socket.emit('joinBoard', 'kanban-board');
+        // Listen for task updates
+        socket.on('task-created', (newTask: Task) => {
+            // console.log("working")
+            // console.log("console", newTask.assignees.some(a => a['_id'] === user?._id))
+            if (newTask.assignees.some(a => a['_id'] === user?._id)) {
+                setColumns(prev =>
+                    prev.map(col => {
+                        if (col.id === newTask.column) {
+                            return {
+                                ...col,
+                                tasks: [...col.tasks, newTask],
+                            };
+                        }
+                        return col;
+                    })
+                );
+            }
+            console.log(newTask)
+
+
+        });
+
+        socket.on('task-updated', (updatedTask: Task) => {
+            setColumns(prev =>
+                prev.map(col => ({
+                    ...col,
+                    tasks: col.tasks.map(t => t._id === updatedTask._id ? updatedTask : t)
+                }))
+            );
+        });
+
+        // Listen for task deletion
+        socket.on('task-deleted', (taskId: string) => {
+            setColumns(prev =>
+                prev.map(col => ({
+                    ...col,
+                    tasks: col.tasks.filter(t => t._id !== taskId)
+                }))
+            );
+        });
+
+
+
+        return () => {
+            socket.off('task-updated');
+            socket.off('task-deleted');
+            socket.off('task-created');
+        };
+    }, [loading, socket, user?._id])
+
+
+
 
     // fetch columns & users
     useEffect(() => {
@@ -94,6 +161,8 @@ const KanbanBoard: React.FC = () => {
                     return col;
                 })
             );
+
+            socket?.emit("task-created", res.data.data);
         } catch (e) {
             console.error("Error adding task:", e);
         }
