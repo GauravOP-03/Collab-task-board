@@ -37,7 +37,6 @@ const KanbanBoard: React.FC = () => {
         // Listen for task updates
         socket.on('task-created', (newTask: Task) => {
             // console.log("working")
-            // console.log("console", newTask.assignees.some(a => a['_id'] === user?._id))
             if (newTask.assignees.some(a => a['_id'] === user?._id)) {
                 setColumns(prev =>
                     prev.map(col => {
@@ -57,16 +56,21 @@ const KanbanBoard: React.FC = () => {
         });
 
         socket.on('task-updated', (updatedTask: Task) => {
-            setColumns(prev =>
-                prev.map(col => ({
-                    ...col,
-                    tasks: col.tasks.map(t => t._id === updatedTask._id ? updatedTask : t)
-                }))
-            );
+            console.log("task updated")
+            if (updatedTask.assignees.some(a => a['_id'] === user?._id)) {
+
+                setColumns(prev =>
+                    prev.map(col => ({
+                        ...col,
+                        tasks: col.tasks.map(t => t._id === updatedTask._id ? updatedTask : t)
+                    }))
+                );
+            }
         });
 
         // Listen for task deletion
         socket.on('task-deleted', (taskId: string) => {
+
             setColumns(prev =>
                 prev.map(col => ({
                     ...col,
@@ -75,14 +79,24 @@ const KanbanBoard: React.FC = () => {
             );
         });
 
+        socket.on('update-column', (tasks: Task[]) => {
+            const updatedColumns = columnMetadata.map(col => ({
+                ...col,
+                tasks: tasks.filter(t => t.column === col.id),
+            }));
+
+            setColumns(updatedColumns);
+        })
+
 
 
         return () => {
             socket.off('task-updated');
             socket.off('task-deleted');
             socket.off('task-created');
+            socket.off('update-column')
         };
-    }, [loading, socket, user?._id])
+    }, [columnMetadata, loading, socket, user?._id])
 
 
 
@@ -138,6 +152,7 @@ const KanbanBoard: React.FC = () => {
             }));
 
             setColumns(updatedColumns);
+            socket?.emit("update-column", tasks)
         } catch (e) {
             console.error(e);
         } finally {
@@ -171,6 +186,7 @@ const KanbanBoard: React.FC = () => {
 
 
     const editTask = async (task: Partial<TaskInput>) => {
+
         try {
             const res = await axiosInstance.put(`/tasks/${task._id}`, task);
             console.log(res.data.data);
@@ -179,6 +195,7 @@ const KanbanBoard: React.FC = () => {
                 tasks: col.tasks.map(t => t._id === task._id ? res.data.data : t)
             })));
             // console.log(task.data.data)
+
         } catch (e) {
             console.error("Error editing task", e);
         }
@@ -192,6 +209,7 @@ const KanbanBoard: React.FC = () => {
                 ...col,
                 tasks: col.tasks.filter(t => t._id !== taskId)
             })));
+            socket?.emit("task-deleted", taskId);
         } catch (e) {
             console.error("Error deleting task:", e);
         }

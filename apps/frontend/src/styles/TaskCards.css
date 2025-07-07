@@ -1,0 +1,164 @@
+.task-card {
+  perspective: 1000px;
+  cursor: pointer;
+  width: 90%;
+  max-width: 400px; /* Limit card width for large screens */
+  margin: 0 auto;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  min-height: 220px; /* Ensures enough height for content */
+  transition: transform 0.6s ease;
+  transform-style: preserve-3d;
+}
+
+.task-card:hover .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-front,
+.card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.card-front {
+  z-index: 2;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+  justify-content: center;
+  align-items: flex-start;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.task-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.task-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.priority-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.delete-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #ef4444;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.delete-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.task-description {
+  font-size: 0.95rem;
+  color: #374151;
+  margin: 4px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag-pill {
+  background-color: #e0f2fe;
+  color: #0284c7;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+
+.task-assignees {
+  display: flex;
+  gap: 6px;
+}
+
+.assignee-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.task-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #6b7280;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  word-break: break-word;
+}
+
+/* 🌟 Responsive design */
+@media (max-width: 600px) {
+  .task-card {
+    max-width: 100%;
+  }
+  .task-title {
+    font-size: 1rem;
+  }
+  .task-description {
+    font-size: 0.85rem;
+  }
+  .tag-pill {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+  }
+  .assignee-avatar {
+    width: 24px;
+    height: 24px;
+    font-size: 0.8rem;
+  }
+}
+/* Prevent flip visually while dragging */
+.task-card.no-flip .card-inner {
+  transform: none !important;
+}
