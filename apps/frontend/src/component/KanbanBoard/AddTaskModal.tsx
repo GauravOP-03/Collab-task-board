@@ -7,9 +7,10 @@ interface Props {
     users: User[];
     onClose: () => void;
     onAddTask: (task: Partial<TaskInput>) => Promise<void>;
+    smartAssign: () => Promise<User>; // Added smartAssign prop
 }
 
-const AddTaskModal: React.FC<Props> = ({ users, onClose, onAddTask }) => {
+const AddTaskModal: React.FC<Props> = ({ users, onClose, onAddTask, smartAssign }) => {
     const [newTask, setNewTask] = useState<Partial<TaskInput>>({
         title: "",
         description: "",
@@ -20,10 +21,11 @@ const AddTaskModal: React.FC<Props> = ({ users, onClose, onAddTask }) => {
         column: "todo",
     });
     const [loading, setLoading] = useState(false);
+    const [assigning, setAssigning] = useState(false); // Separate loader for Smart Assign
     const [tagInput, setTagInput] = useState("");
 
     const handleSubmit = async () => {
-        if (!newTask.title?.trim() || loading) return;
+        if (!newTask.title?.trim() || loading || assigning) return;
 
         setLoading(true);
         try {
@@ -47,6 +49,26 @@ const AddTaskModal: React.FC<Props> = ({ users, onClose, onAddTask }) => {
                 : [...assignees, user._id];
             return { ...prev, assignees: updated };
         });
+    };
+
+    const handleSmartAssign = async () => {
+        setAssigning(true);
+        try {
+            const suggestedUser = await smartAssign();
+            if (!(newTask.assignees as string[]).includes(suggestedUser._id)) {
+                setNewTask(prev => ({
+                    ...prev,
+                    assignees: [...(prev.assignees as string[]), suggestedUser._id],
+                }));
+                console.log(`Smart assigned to ${suggestedUser.username}`);
+            } else {
+                console.log(`${suggestedUser.username} is already assigned.`);
+            }
+        } catch (error) {
+            console.error("Smart assign failed:", error);
+        } finally {
+            setAssigning(false);
+        }
     };
 
     const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -78,7 +100,7 @@ const AddTaskModal: React.FC<Props> = ({ users, onClose, onAddTask }) => {
                     <button
                         onClick={onClose}
                         className="modal-close-btn"
-                        disabled={loading}
+                        disabled={loading || assigning}
                         aria-label="Close"
                     >
                         <X size={20} />
@@ -93,7 +115,7 @@ const AddTaskModal: React.FC<Props> = ({ users, onClose, onAddTask }) => {
                         placeholder="Enter task title"
                         value={newTask.title}
                         onChange={e => setNewTask({ ...newTask, title: e.target.value })}
-                        disabled={loading}
+                        disabled={loading || assigning}
                         style={{ width: '95%' }}
                     />
 
@@ -103,7 +125,7 @@ const AddTaskModal: React.FC<Props> = ({ users, onClose, onAddTask }) => {
                         placeholder="Enter description"
                         value={newTask.description}
                         onChange={e => setNewTask({ ...newTask, description: e.target.value })}
-                        disabled={loading}
+                        disabled={loading || assigning}
                         style={{ width: '95%' }}
                     />
 
@@ -113,7 +135,7 @@ const AddTaskModal: React.FC<Props> = ({ users, onClose, onAddTask }) => {
                         type="date"
                         value={newTask.dueDate}
                         onChange={e => setNewTask({ ...newTask, dueDate: e.target.value })}
-                        disabled={loading}
+                        disabled={loading || assigning}
                         style={{ width: '95%' }}
                     />
 
@@ -121,8 +143,13 @@ const AddTaskModal: React.FC<Props> = ({ users, onClose, onAddTask }) => {
                     <label>Priority</label>
                     <select
                         value={newTask.priority}
-                        onChange={e => setNewTask({ ...newTask, priority: e.target.value as "low" | "medium" | "high" })}
-                        disabled={loading}
+                        onChange={e =>
+                            setNewTask({
+                                ...newTask,
+                                priority: e.target.value as "low" | "medium" | "high",
+                            })
+                        }
+                        disabled={loading || assigning}
                     >
                         <option value="low">Low</option>
                         <option value="medium">Medium</option>
@@ -138,7 +165,7 @@ const AddTaskModal: React.FC<Props> = ({ users, onClose, onAddTask }) => {
                                 <button
                                     type="button"
                                     onClick={() => removeTag(tag)}
-                                    disabled={loading}
+                                    disabled={loading || assigning}
                                     aria-label={`Remove tag ${tag}`}
                                 >
                                     <X size={14} />
@@ -151,7 +178,7 @@ const AddTaskModal: React.FC<Props> = ({ users, onClose, onAddTask }) => {
                             value={tagInput}
                             onChange={e => setTagInput(e.target.value)}
                             onKeyDown={handleTagKeyDown}
-                            disabled={loading}
+                            disabled={loading || assigning}
                         />
                     </div>
 
@@ -164,7 +191,7 @@ const AddTaskModal: React.FC<Props> = ({ users, onClose, onAddTask }) => {
                                 <div
                                     key={user._id}
                                     className={`user-chip ${selected ? "selected" : ""}`}
-                                    onClick={() => !loading && toggleAssignee(user)}
+                                    onClick={() => !loading && !assigning && toggleAssignee(user)}
                                 >
                                     <div className="avatar">
                                         {user.username.charAt(0).toUpperCase()}
@@ -175,11 +202,26 @@ const AddTaskModal: React.FC<Props> = ({ users, onClose, onAddTask }) => {
                         })}
                     </div>
 
+                    {/* Smart Assign Button */}
+                    <button
+                        className="button-smart-assign"
+                        onClick={handleSmartAssign}
+                        disabled={loading || assigning}
+                    >
+                        {assigning ? (
+                            <span className="loading-flex">
+                                <Loader2 size={16} className="spin" /> Assigning...
+                            </span>
+                        ) : (
+                            "Smart Assign"
+                        )}
+                    </button>
+
                     {/* Submit */}
                     <button
                         onClick={handleSubmit}
                         className="button-add"
-                        disabled={loading}
+                        disabled={loading || assigning}
                     >
                         {loading ? (
                             <span className="loading-flex">

@@ -5,6 +5,7 @@ const {
   deleteTask,
   updateTask,
   updateTaskColumn,
+  smartAssign,
 } = require("../controller/taskController");
 const { verifyToken } = require("../middleware/verify");
 const router = express.Router();
@@ -14,5 +15,6 @@ router.post("/", verifyToken, createTask);
 router.delete("/:taskId", verifyToken, deleteTask);
 router.put("/:taskId", verifyToken, updateTask);
 router.patch("/:taskId/column", verifyToken, updateTaskColumn);
+router.get("/smartAssign", verifyToken, smartAssign);
 
 module.exports = router;

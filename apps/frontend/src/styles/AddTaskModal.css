@@ -237,3 +237,18 @@
     padding: 5px 8px;
   }
 }
+.button-smart-assign {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: none;
+  background-color: #4f46e5;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.button-smart-assign:hover {
+  background-color: #4338ca;
+}

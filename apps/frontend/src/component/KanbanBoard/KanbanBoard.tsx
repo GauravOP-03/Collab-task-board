@@ -215,6 +215,16 @@ const KanbanBoard: React.FC = () => {
         }
     };
 
+    const smartAssign = async () => {
+        try {
+            const res = await axiosInstance.get('/tasks/smartAssign');
+            console.log(res.data);
+            return res.data;
+        } catch (e) {
+            console.error("Error in Smart Assign", e);
+        }
+    }
+
     return (
         <div className="board-container">
             <div className="board-header">
@@ -250,6 +260,7 @@ const KanbanBoard: React.FC = () => {
                     users={users}
                     onClose={() => setShowAddTask(false)}
                     onAddTask={addTask}
+                    smartAssign={smartAssign}
                 />
             )}
         </div>

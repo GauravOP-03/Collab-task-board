@@ -9,6 +9,7 @@ import LoginRoute from "./routes/LoginRoute"
 import { SocketProvider } from "./context/socket/SocketProvider";
 import KanbanBoard from "./component/KanbanBoard/KanbanBoard";
 import PrivateRoute from "./routes/PrivateRoute";
+import { Toaster } from "react-hot-toast";
 
 
 
@@ -23,8 +24,12 @@ function App() {
   return (
     <AuthProvider>
       <SocketProvider>
-
+        <Toaster
+          position="top-center"
+          reverseOrder={false}
+        />
         <RouterProvider router={router} />
+
       </SocketProvider>
 
     </AuthProvider>

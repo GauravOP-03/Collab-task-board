@@ -151,3 +151,43 @@ exports.updateTaskColumn = async (req, res) => {
     });
   }
 };
+
+exports.smartAssign = async (req, res) => {
+  try {
+    const result = await Task.aggregate([
+      { $unwind: "$assignees" },
+      { $group: { _id: "$assignees", taskCount: { $sum: 1 } } },
+      { $sort: { taskCount: 1 } },
+      { $limit: 1 },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
+        $replaceRoot: {
+          newRoot: {
+            _id: "$user._id",
+            username: "$user.username",
+            email: "$user.email",
+          },
+        },
+      },
+    ]);
+
+    if (result.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No users assigned to any task." });
+    }
+
+    return res.status(200).json(result[0]);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
