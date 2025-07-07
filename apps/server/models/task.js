@@ -13,6 +13,7 @@ const task = new Schema(
     },
     dueDate: {
       type: Date,
+      default: Date.now,
     },
     assignees: {
       type: [Schema.Types.ObjectId],
@@ -23,9 +24,7 @@ const task = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
-    tags: {
-      type: [String],
-    },
+    tags: [String],
     priority: {
       type: String,
       enum: ["high", "medium", "low"],

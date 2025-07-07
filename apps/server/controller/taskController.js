@@ -5,6 +5,7 @@ exports.createTask = async (req, res) => {
   try {
     const { title, description, assignees, priority, dueDate, column, tags } =
       req.body;
+    // console.log(req.body);/
     const exist = await Task.findOne({ title }).exec();
     if (["todo", "inprogress", "done"].includes(title) || exist) {
       return res
@@ -23,6 +24,7 @@ exports.createTask = async (req, res) => {
       assignedBy: req.user.userId,
     });
     const savedTask = await task.save();
+    // console.log(savedTask);
 
     const newTask = await Task.populate(savedTask, [
       { path: "assignedBy", select: "username email" },

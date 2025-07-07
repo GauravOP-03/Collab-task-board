@@ -1,9 +1,9 @@
 /* General board layout */
 .board-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(145deg, #f8fafc 0%, #e0f2fe 100%);
   padding: 24px;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
 }
 
 .board-header {
@@ -18,55 +18,59 @@
 
 .board-title {
   margin: 0;
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
-  color: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #1f2937;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .button {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 600;
   border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
+  border-radius: 12px;
+  padding: 10px 20px;
   cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.button-settings {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
-  backdrop-filter: blur(10px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .button-add {
-  background-color: #10b981;
+  background: linear-gradient(135deg, #34d399, #10b981);
   color: white;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+}
+
+.button-add:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 24px rgba(16, 185, 129, 0.5);
 }
 
 .columns-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 28px;
   max-width: 1400px;
   margin: 0 auto;
 }
 
 /* Column */
 .column-container {
-  background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  padding: 20px;
-  min-height: 400px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.2s ease;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 20px;
+  padding: 24px;
+  min-height: 420px;
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.column-container:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
 }
 
 .column-header {
@@ -79,38 +83,43 @@
 .column-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #1f2937;
+  font-size: 20px;
+  font-weight: 700;
+  color: #374151;
 }
 
 .column-title-dot {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
 }
 
 .column-count {
-  background-color: #f3f4f6;
-  color: #6b7280;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
+  background-color: #e0f2fe;
+  color: #0284c7;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 13px;
   font-weight: 600;
 }
 
 /* TaskCard */
 .task-card {
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 16px;
   padding: 16px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   cursor: grab;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.task-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
 }
 
 .task-card-header {
@@ -122,49 +131,114 @@
 
 .task-title {
   margin: 0;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
   color: #1f2937;
-  line-height: 1.3;
+  line-height: 1.4;
 }
 
 .task-actions button {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 2px;
-  color: #6b7280;
+  padding: 4px;
+  color: #94a3b8;
   display: flex;
   align-items: center;
 }
 
+.task-actions button:hover {
+  color: #1f2937;
+}
+
 .priority-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
 }
 
 .tag-pill {
-  background-color: #f3f4f6;
-  color: #4b5563;
-  padding: 2px 8px;
-  border-radius: 12px;
+  background-color: #f1f5f9;
+  color: #475569;
+  padding: 4px 10px;
+  border-radius: 14px;
   font-size: 12px;
   font-weight: 500;
-  margin-right: 4px;
+  margin-right: 6px;
 }
 
 .assignee-avatar {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   color: white;
-  font-weight: 500;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 13px;
   border: 2px solid white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   margin-right: 4px;
+}
+
+/* Animation for drag */
+.task-card:active {
+  transform: scale(1.03);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.15);
+}
+/* Floating Add Task Button */
+.fab-add-task {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    #3b82f6,
+    #60a5fa
+  ); /* Soft blue gradient */
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 1000;
+}
+
+.fab-add-task:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 32px rgba(59, 130, 246, 0.5);
+}
+.loading-board {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  color: #4f46e5;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid #e0e0e0;
+  border-top-color: #4f46e5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

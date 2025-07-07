@@ -1,0 +1,56 @@
+.not-found-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  font-family: "Segoe UI", Roboto, sans-serif;
+  text-align: center;
+  color: #334155;
+}
+
+.not-found-code {
+  font-size: 8rem;
+  font-weight: 800;
+  color: #4f46e5;
+  margin-bottom: 1rem;
+}
+
+.not-found-text {
+  font-size: 1.5rem;
+  color: #64748b;
+  margin-bottom: 2rem;
+}
+
+.home-button {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  background-color: #4f46e5;
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.home-button:hover {
+  background-color: #4338ca;
+}
+.not-found-code {
+  font-size: 8rem;
+  font-weight: 800;
+  color: #4f46e5;
+  margin-bottom: 1rem;
+  animation: bounce 1.2s infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}

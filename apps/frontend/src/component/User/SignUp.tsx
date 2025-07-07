@@ -10,6 +10,7 @@ import UserCardHeader from "./userComponents/UserCardHeader";
 import AuthSwitch from "./userComponents/AuthSwitch";
 import { useAuth } from "../../context/auth/useAuth";
 import "../../styles/user.css";
+import toast from "react-hot-toast";
 
 export default function SignupForm() {
   const [formData, setFormData] = useState({
@@ -60,6 +61,7 @@ export default function SignupForm() {
 
       try {
         await login();
+        toast.success("Account Created! Redirecting...");
       } catch (e) {
         console.error("Login failed:", e);
         return;
@@ -79,8 +81,10 @@ export default function SignupForm() {
         setErrors(fieldErrors);
       } else if (axios.isAxiosError(error) && error.response) {
         console.error("Signup Failed:", error.response.data?.message || "An error occurred on the server.");
+        toast.error(error.response.data?.message || "Signup failed. Please try again.");
       } else {
         console.error("Signup error:", error);
+        toast.error("Signup failed. Please try again.");
       }
     } finally {
       setLoading(false);

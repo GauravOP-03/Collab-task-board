@@ -10,6 +10,7 @@ import AuthSwitch from "./userComponents/AuthSwitch";
 import { LogIn } from "lucide-react";
 import { useAuth } from "../../context/auth/useAuth";
 import "../../styles/user.css";
+import toast from "react-hot-toast";
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({
@@ -44,6 +45,7 @@ export default function LoginForm() {
       });
       try {
         await login();
+        toast.success("Login Successful: Welcome back!");
       } catch (e) {
         console.error("Login failed:", e);
         return;
@@ -60,6 +62,11 @@ export default function LoginForm() {
         });
         setErrors(fieldErrors);
       } else {
+        if (axios.isAxiosError(error)) {
+          toast.error(error.response?.data?.message || "Login failed. Please try again.");
+        } else {
+          toast.error("Login failed. Please try again.");
+        }
         console.error("Login error:", error);
       }
     } finally {

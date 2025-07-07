@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Plus } from 'lucide-react';
 import Column from './Column';
 import AddTaskModal from './AddTaskModal';
@@ -7,37 +7,70 @@ import axiosInstance from '../../lib/axiosInstance';
 import '../../styles/KanbanBoard.css';
 import { useSocket } from "../../context/socket/useSocket"
 import { useAuth } from "../../context/auth/useAuth"
+import toast from 'react-hot-toast';
+import Navbar from '../Navbar';
+
+// Move column metadata outside component to avoid re-creation
+const columnMetadata: ColumnType[] = [
+    { id: "todo", title: "To Do", color: "#FF5733", tasks: [] },
+    { id: "inprogress", title: "In Progress", color: "#33A1FF", tasks: [] },
+    { id: "done", title: "Done", color: "#28A745", tasks: [] },
+];
 
 const KanbanBoard: React.FC = () => {
-
-    const { socket, loading } = useSocket();
+    const { socket, loading: socketLoading } = useSocket();
     const { user } = useAuth();
-    const columnMetadata: ColumnType[] = React.useMemo(() => [
-        { id: "todo", title: "To Do", color: "#FF5733", tasks: [] },
-        { id: "inprogress", title: "In Progress", color: "#33A1FF", tasks: [] },
-        { id: "done", title: "Done", color: "#28A745", tasks: [] },
-    ], []);
 
     const [columns, setColumns] = useState<ColumnType[]>(columnMetadata);
-
     const [users, setUsers] = useState<User[]>([]);
     const [draggedTask, setDraggedTask] = useState<Task | null>(null);
     const [draggedOver, setDraggedOver] = useState<string | null>(null);
     const [showAddTask, setShowAddTask] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
+    const showConnection = useRef(false);
 
-
+    // Load tasks and users
     useEffect(() => {
-        console.log(socket)
-        if (!socket || loading) {
-            console.log("Waiting for socket to initialize...");
+        (async () => {
+            try {
+                const [{ data: tasksResp }, { data: usersResp }] = await Promise.all([
+                    axiosInstance.get('/tasks'),
+                    axiosInstance.get('/users')
+                ]);
+
+                const tasks: Task[] = tasksResp.data || [];
+                const updatedColumns = columnMetadata.map(col => ({
+                    ...col,
+                    tasks: tasks.filter(t => t.column === col.id),
+                }));
+                setColumns(updatedColumns);
+                setUsers(usersResp.users);
+            } catch (e) {
+                console.error(e);
+                toast.error("Failed to load board data.");
+            } finally {
+                setIsLoading(false);
+            }
+        })();
+    }, []);
+
+    // Socket setup
+    useEffect(() => {
+        if (!socket || socketLoading) {
+            if (!showConnection.current) {
+                toast('Waiting for connection to server...', { icon: '⏳' });
+                showConnection.current = true;
+            }
             return;
         }
+
+        // Join room (once)
         socket.emit('joinBoard', 'kanban-board');
-        // Listen for task updates
-        socket.on('task-created', (newTask: Task) => {
-            // console.log("working")
-            if (newTask.assignees.some(a => a['_id'] === user?._id)) {
+
+        const handleTaskCreated = (newTask: Task) => {
+            console.log(newTask)
+            if (newTask.assignees.some(a => a['_id'] === user?._id) || newTask.assignedBy._id === user?._id) {
                 setColumns(prev =>
                     prev.map(col => {
                         if (col.id === newTask.column) {
@@ -49,81 +82,58 @@ const KanbanBoard: React.FC = () => {
                         return col;
                     })
                 );
+                toast.success(`Task "${newTask.title}" created by ${newTask.assignedBy.username}, { icon: '✅' }`);
             }
-            console.log(newTask)
+        };
 
-
-        });
-
-        socket.on('task-updated', (updatedTask: Task) => {
-            console.log("task updated")
-            if (updatedTask.assignees.some(a => a['_id'] === user?._id)) {
-
+        const handleTaskUpdated = (updatedTask: Task) => {
+            if (updatedTask.assignees.some(a => a._id === user?._id) && updatedTask.assignedBy._id !== user?._id) {
                 setColumns(prev =>
                     prev.map(col => ({
                         ...col,
                         tasks: col.tasks.map(t => t._id === updatedTask._id ? updatedTask : t)
                     }))
                 );
+                toast.success(`Task "${updatedTask.title}" updated by ${updatedTask.assignedBy.username}`, { icon: '✅' });
             }
-        });
+        };
 
-        // Listen for task deletion
-        socket.on('task-deleted', (taskId: string) => {
-
+        const handleTaskDeleted = (taskId: string) => {
+            console.log('Task deleted:', taskId);
             setColumns(prev =>
                 prev.map(col => ({
                     ...col,
                     tasks: col.tasks.filter(t => t._id !== taskId)
                 }))
             );
-        });
-
-        socket.on('update-column', (tasks: Task[]) => {
-            const updatedColumns = columnMetadata.map(col => ({
-                ...col,
-                tasks: tasks.filter(t => t.column === col.id),
-            }));
-
-            setColumns(updatedColumns);
-        })
-
-
-
-        return () => {
-            socket.off('task-updated');
-            socket.off('task-deleted');
-            socket.off('task-created');
-            socket.off('update-column')
         };
-    }, [columnMetadata, loading, socket, user?._id])
 
-
-
-
-    // fetch columns & users
-    useEffect(() => {
-        (async () => {
-            try {
-                const { data: tasksResp } = await axiosInstance.get('/tasks');
-                // console.log(tasksResp.data);
-                const tasks: Task[] = tasksResp.data || [];
-
-                // Group tasks into columns
-                const updatedColumns = columnMetadata.map(col => ({
+        const handleUpdateColumn = (updatedTask: Partial<Task>) => {
+            setColumns(prev =>
+                prev.map(col => ({
                     ...col,
-                    tasks: tasks.filter(t => t.column === col.id),
-                }));
-                setColumns(updatedColumns);
+                    tasks: col.tasks
+                        .filter(t => t._id !== updatedTask._id)
+                        .concat(updatedTask.column === col.id ? [updatedTask as Task] : [])
+                }))
+            );
+        };
 
-                const { data: usersResp } = await axiosInstance.get('/users');
-                console.log(usersResp);
-                setUsers(usersResp.users);
-            } catch (e) {
-                console.error(e);
-            }
-        })();
-    }, [columnMetadata]);
+        // Attach listeners
+        socket.on('task-created', handleTaskCreated);
+        socket.on('task-updated', handleTaskUpdated);
+        socket.on('task-deleted', handleTaskDeleted);
+        socket.on('update-column', handleUpdateColumn);
+
+        // Cleanup
+        return () => {
+            socket.off('task-created', handleTaskCreated);
+            socket.off('task-updated', handleTaskUpdated);
+            socket.off('task-deleted', handleTaskDeleted);
+            socket.off('update-column', handleUpdateColumn);
+        };
+    }, [socket, socketLoading, user?._id]);
+
 
     const handleDragStart = (task: Task) => {
         setDraggedTask(task);
@@ -136,25 +146,34 @@ const KanbanBoard: React.FC = () => {
             return;
         }
 
-        try {
-            // update on server
-            await axiosInstance.patch(`/tasks/${draggedTask._id}/column`, {
-                column: newColumnId
-            });
-
-            // re-fetch grouped columns
-            const { data: tasksResp } = await axiosInstance.get('/tasks');
-            const tasks: Task[] = tasksResp.data;
-
-            const updatedColumns = columnMetadata.map(col => ({
+        // Optimistic UI update
+        const prevColumns = [...columns];
+        setColumns(prev =>
+            prev.map(col => ({
                 ...col,
-                tasks: tasks.filter(t => t.column === col.id),
-            }));
+                tasks: col.tasks.filter(t => t._id !== draggedTask._id)
+            }))
+        );
+        setColumns(prev =>
+            prev.map(col =>
+                col.id === newColumnId
+                    ? { ...col, tasks: [...col.tasks, { ...draggedTask, column: newColumnId as Task["column"] }] }
+                    : col
+            )
+        );
 
-            setColumns(updatedColumns);
-            socket?.emit("update-column", tasks)
+        try {
+            await axiosInstance.patch(`/tasks/${draggedTask._id}/column`, { column: newColumnId });
+            socket?.emit("update-column", {
+                _id: draggedTask._id,
+                column: newColumnId,
+            });
+            toast.success("Task moved successfully!");
+
         } catch (e) {
             console.error(e);
+            toast.error("Failed to move task. Reverting changes.");
+            setColumns(prevColumns); // rollback
         } finally {
             setDraggedTask(null);
             setDraggedOver(null);
@@ -162,108 +181,108 @@ const KanbanBoard: React.FC = () => {
     };
 
     const addTask = async (task: Partial<TaskInput>) => {
+        // console.log(task)
         try {
             const res = await axiosInstance.post(`/tasks`, task);
-
-            setColumns(prev =>
-                prev.map(col => {
-                    if (col.id === res.data.data.column) {
-                        return {
-                            ...col,
-                            tasks: [...col.tasks, res.data.data],
-                        };
-                    }
-                    return col;
-                })
-            );
-
             socket?.emit("task-created", res.data.data);
+            // toast.success(`Task "${res.data.data.title}" added successfully!`, { icon: '✅' });
         } catch (e) {
             console.error("Error adding task:", e);
+            toast.error("Failed to add task.");
         }
         setShowAddTask(false);
     };
 
-
     const editTask = async (task: Partial<TaskInput>) => {
-
         try {
             const res = await axiosInstance.put(`/tasks/${task._id}`, task);
-            console.log(res.data.data);
-            setColumns(prev => prev.map(col => ({
-                ...col,
-                tasks: col.tasks.map(t => t._id === task._id ? res.data.data : t)
-            })));
-            // console.log(task.data.data)
-
+            toast.success(`Task "${res.data.data.title}" updated successfully!`, { icon: '✅' });
+            socket?.emit("task-updated", res.data.data);
         } catch (e) {
             console.error("Error editing task", e);
+            toast.error("Failed to update task.");
         }
-    }
+    };
 
     const deleteTask = async (taskId: string) => {
         try {
             await axiosInstance.delete(`/tasks/${taskId}`);
-
-            setColumns(prev => prev.map(col => ({
-                ...col,
-                tasks: col.tasks.filter(t => t._id !== taskId)
-            })));
+            toast.success("Task deleted successfully!", { icon: '✅' });
             socket?.emit("task-deleted", taskId);
         } catch (e) {
             console.error("Error deleting task:", e);
+            toast.error("Failed to delete task.");
         }
     };
 
     const smartAssign = async () => {
         try {
             const res = await axiosInstance.get('/tasks/smartAssign');
-            console.log(res.data);
             return res.data;
         } catch (e) {
             console.error("Error in Smart Assign", e);
+            toast.error("Smart Assign failed.");
         }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="loading-board">
+                <div className="spinner"></div>
+                <p>Loading Kanban Board...</p>
+            </div>
+        );
     }
 
+
     return (
-        <div className="board-container">
-            <div className="board-header">
-                <h1 className="board-title">Project Kanban Board</h1>
-                <div>
-                    <button
-                        className="button button-add"
-                        onClick={() => setShowAddTask(true)}
-                    >
-                        <Plus size={16} /> Add Task
-                    </button>
+        <>
+            <Navbar />
+
+            <div className="board-container">
+                <div className="board-header">
+                    <h1 className="board-title">Collab Task Board</h1>
+                    {/* <button
+                    className="button button-add"
+                    onClick={() => setShowAddTask(true)}
+                >
+                    <Plus size={16} /> Add Task
+                </button> */}
+                </div>
+
+                <div className="columns-grid">
+                    {columns.map(col => (
+                        <Column
+                            key={col.id}
+                            column={col}
+                            onDragStart={handleDragStart}
+                            onDrop={handleDrop}
+                            draggedOver={draggedOver}
+                            setDraggedOver={setDraggedOver}
+                            deleteTask={deleteTask}
+                            editTask={editTask}
+                            users={users}
+                        />
+                    ))}
+                </div>
+
+                {showAddTask && (
+                    <AddTaskModal
+                        users={users}
+                        onClose={() => setShowAddTask(false)}
+                        onAddTask={addTask}
+                        smartAssign={smartAssign}
+                    />
+                )}
+
+                <div
+                    className="fab-add-task"
+                    onClick={() => setShowAddTask(true)}
+                >
+                    <Plus size={28} />
                 </div>
             </div>
-
-            <div className="columns-grid">
-                {columns && columns.length > 0 && columns.map(col => (
-                    <Column
-                        key={col.id}
-                        column={col}
-                        onDragStart={handleDragStart}
-                        onDrop={handleDrop}
-                        draggedOver={draggedOver}
-                        setDraggedOver={setDraggedOver}
-                        deleteTask={deleteTask}
-                        editTask={editTask}
-                        users={users}
-                    />
-                ))}
-            </div>
-
-            {showAddTask && (
-                <AddTaskModal
-                    users={users}
-                    onClose={() => setShowAddTask(false)}
-                    onAddTask={addTask}
-                    smartAssign={smartAssign}
-                />
-            )}
-        </div>
+        </>
     );
 };
 

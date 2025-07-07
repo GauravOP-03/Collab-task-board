@@ -1,0 +1,43 @@
+.route-loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f8fafc;
+  font-family: "Segoe UI", Roboto, sans-serif;
+}
+
+.route-loading .dots {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.route-loading .dots span {
+  width: 12px;
+  height: 12px;
+  background-color: #6366f1;
+  border-radius: 50%;
+  animation: bounce 0.6s infinite alternate;
+}
+
+.route-loading .dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.route-loading .dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  to {
+    transform: translateY(-10px);
+  }
+}
+
+.route-loading p {
+  font-size: 1.2rem;
+  color: #4b5563;
+  font-weight: 500;
+}
