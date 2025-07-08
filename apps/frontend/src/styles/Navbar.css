@@ -152,3 +152,32 @@
     transform: translateY(0);
   }
 }
+
+/* Mobile Menu */
+.mobile-menu {
+  position: absolute;
+  top: 60px; /* Adjust based on your navbar height */
+  right: 0;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  z-index: 1000;
+}
+
+.mobile-user-name,
+.mobile-user-email {
+  margin: 0.5rem 0;
+}
+
+.mobile-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}

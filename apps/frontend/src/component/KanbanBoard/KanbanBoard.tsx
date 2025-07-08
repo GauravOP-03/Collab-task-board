@@ -9,6 +9,9 @@ import { useSocket } from "../../context/socket/useSocket"
 import { useAuth } from "../../context/auth/useAuth"
 import toast from 'react-hot-toast';
 import Navbar from '../Navbar';
+import ConflictResolver from './ConflictResolver';
+import type { AxiosError } from 'axios';
+import LogSheet from './LogSheets';
 
 // Move column metadata outside component to avoid re-creation
 const columnMetadata: ColumnType[] = [
@@ -28,6 +31,7 @@ const KanbanBoard: React.FC = () => {
     const [showAddTask, setShowAddTask] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
+    const [conflictDetected, setConflictDetected] = useState(false);
     const showConnection = useRef(false);
 
     // Load tasks and users
@@ -193,14 +197,24 @@ const KanbanBoard: React.FC = () => {
         setShowAddTask(false);
     };
 
+    const [clientVersion, setClientVersion] = useState<TaskInput>();
+    const [serverVersion, setServerVersion] = useState<Task>()
+
     const editTask = async (task: Partial<TaskInput>) => {
+        console.log(task)
         try {
             const res = await axiosInstance.put(`/tasks/${task._id}`, task);
-            toast.success(`Task "${res.data.data.title}" updated successfully!`, { icon: '✅' });
+            setConflictDetected(false);
             socket?.emit("task-updated", res.data.data);
         } catch (e) {
             console.error("Error editing task", e);
-            toast.error("Failed to update task.");
+            const err = e as AxiosError<{ message: string, clientVersion: TaskInput, serverVersion: Task }>;
+            if (err.response?.status === 409) {
+                setClientVersion(err.response.data.clientVersion);
+                setServerVersion(err.response.data.serverVersion);
+                setConflictDetected(true);
+            }
+            toast.error(err.response?.data?.message || "Failed to update task.");
         }
     };
 
@@ -225,6 +239,17 @@ const KanbanBoard: React.FC = () => {
         }
     };
 
+    const onResolve = async (task: Partial<TaskInput>) => {
+        try {
+            const res = await axiosInstance.put(`tasks/conflict/${task._id}`, task);
+            setConflictDetected(false);
+            socket?.emit("task-updated", res.data.data);
+        } catch (e) {
+
+            console.error("Error editing task", e);
+        }
+    }
+
     if (isLoading) {
         return (
             <div className="loading-board">
@@ -238,6 +263,8 @@ const KanbanBoard: React.FC = () => {
     return (
         <>
             <Navbar />
+
+            {conflictDetected && clientVersion && serverVersion && <ConflictResolver clientVersion={clientVersion} serverVersion={serverVersion} onResolve={onResolve} users={users} />}
 
             <div className="board-container">
                 <div className="board-header">
@@ -274,6 +301,10 @@ const KanbanBoard: React.FC = () => {
                         smartAssign={smartAssign}
                     />
                 )}
+
+                <div className="fab-logs">
+                    <LogSheet />
+                </div>
 
                 <div
                     className="fab-add-task"

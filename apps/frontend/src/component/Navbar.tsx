@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { LogOut, Menu, ListChecks } from "lucide-react";
+import { LogOut, Menu, X, ListChecks } from "lucide-react";
 import { useAuth } from "../context/auth/useAuth";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -9,6 +9,7 @@ const Navbar: React.FC = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     const handleLogout = async () => {
@@ -72,10 +73,25 @@ const Navbar: React.FC = () => {
             <button
                 className="hamburger"
                 aria-label="Toggle Menu"
-                onClick={() => setIsDropdownOpen((prev) => !prev)}
+                onClick={() => setIsMobileMenuOpen((prev) => !prev)}
             >
-                <Menu size={20} />
+                {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
+
+            {/* Mobile Menu */}
+            {isMobileMenuOpen && (
+                <div className="mobile-menu">
+                    {user && (
+                        <>
+                            <p className="mobile-user-name">{user.username}</p>
+                            <p className="mobile-user-email">{user.email}</p>
+                            <button className="mobile-logout-btn" onClick={handleLogout}>
+                                <LogOut size={16} /> Logout
+                            </button>
+                        </>
+                    )}
+                </div>
+            )}
         </nav>
     );
 };

@@ -242,3 +242,9 @@
     transform: rotate(360deg);
   }
 }
+.fab-logs {
+  position: fixed;
+  bottom: 96px; /* above the Add FAB */
+  right: 24px;
+  z-index: 50;
+}

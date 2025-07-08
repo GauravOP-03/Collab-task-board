@@ -24,10 +24,12 @@ export type TaskInput = {
   title: string;
   description: string;
   assignees: string[];
+  assignedBy?: User;
   priority: "high" | "medium" | "low";
   dueDate: string;
   tags: string[];
   column: "todo" | "inprogress" | "done";
+  updatedAt?: string;
 };
 
 export interface Column {

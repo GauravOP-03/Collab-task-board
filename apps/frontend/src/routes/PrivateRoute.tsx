@@ -1,14 +1,19 @@
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/auth/useAuth";
 import { useSocket } from "../context/socket/useSocket"
 
 import "../styles/RouteLoading.css"
+import { toast } from "react-hot-toast";
+import { useRef } from "react";
 interface LoginRouteProp {
     children: React.ReactNode;
 }
 
 export default function LoginRoute({ children }: LoginRouteProp) {
-    const { loading } = useAuth();
+    const { loading, user } = useAuth();
     const { loading: socketLoading } = useSocket();
+    const navigate = useNavigate();
+    const showed = useRef(false);
 
 
     if (loading || socketLoading) {
@@ -24,7 +29,11 @@ export default function LoginRoute({ children }: LoginRouteProp) {
 
 
 
-
+    if (!loading && !user && !showed.current) {
+        navigate("/login")
+        toast.error("Session expired login again!")
+        showed.current = true;
+    }
 
     // If user is not logged in, render the children (LoginForm)
     return <>{children}</>;
