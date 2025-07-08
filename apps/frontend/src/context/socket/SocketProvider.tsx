@@ -25,7 +25,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         const socket = io(import.meta.env.VITE_BACKEND_URL_SOCKET, {
             transports: ["websocket"],
             autoConnect: false,
-            withCredentials: true, // in case backend uses cookies too
         });
 
         // Attach token before connect
@@ -35,13 +34,13 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         // Start connecting
         socket.connect();
 
-        // ✅ Connected
+        // Connected
         socket.on("connect", () => {
             console.log("Socket connected:", socket.id);
             setLoading(false);
         });
 
-        // ❌ Connection error (e.g., invalid token)
+        // Connection error (e.g., invalid token)
         socket.on("connect_error", async (err) => {
             console.error("Socket connection error:", err.message);
 

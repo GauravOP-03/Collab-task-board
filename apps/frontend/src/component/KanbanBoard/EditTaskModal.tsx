@@ -4,14 +4,14 @@ import type { TaskInput, User } from "../../types/KanbanBoardTypes";
 import "../../styles/EditTaskModal.css";
 
 interface Props {
-    task: TaskInput;
+    task: Partial<TaskInput>;
     users: User[];
     onClose: () => void;
-    onSave: (updatedTask: TaskInput) => Promise<void>;
+    onSave: (updatedTask: Partial<TaskInput>) => Promise<void>;
 }
 
 const EditTaskModal: React.FC<Props> = ({ task, users, onClose, onSave }) => {
-    const [editedTask, setEditedTask] = useState<TaskInput>({ ...task });
+    const [editedTask, setEditedTask] = useState<Partial<TaskInput>>({ ...task });
     const [loading, setLoading] = useState(false);
 
     const handleSave = async () => {
@@ -27,10 +27,10 @@ const EditTaskModal: React.FC<Props> = ({ task, users, onClose, onSave }) => {
     };
 
     const toggleAssignee = (userId: string) => {
-        const exists = editedTask.assignees.includes(userId);
+        const exists = editedTask.assignees?.includes(userId);
         const updated = exists
-            ? editedTask.assignees.filter(id => id !== userId)
-            : [...editedTask.assignees, userId];
+            ? (editedTask.assignees as string[]).filter(id => id !== userId)
+            : [...(editedTask.assignees || []), userId];
         setEditedTask({ ...editedTask, assignees: updated });
     };
 
@@ -93,7 +93,7 @@ const EditTaskModal: React.FC<Props> = ({ task, users, onClose, onSave }) => {
                     <label>Assign Users</label>
                     <div className="edit-user-list">
                         {users.map(user => {
-                            const selected = editedTask.assignees.includes(user._id);
+                            const selected = editedTask.assignees && editedTask.assignees.includes(user._id);
                             return (
                                 <div
                                     key={user._id}

@@ -1,10 +1,10 @@
 import React, { useRef } from 'react';
-import { Trash2, Calendar } from 'lucide-react';
+import { Trash2, Calendar, UserCircle2, Clock3 } from 'lucide-react';
 import type { Task } from '../../types/KanbanBoardTypes';
 import "../../styles/TaskCards.css";
 
 interface Props {
-    task: Task;
+    task: Partial<Task>;
     onDragStart: () => void;
     deleteTask: (taskId: string) => void;
     onClick: () => void;
@@ -22,7 +22,7 @@ const TaskCard: React.FC<Props> = ({ task, onDragStart, deleteTask, onClick }) =
             case 'low':
                 return '#10B981'; // Green
             default:
-                return '#64748B'; // Gray
+                return '#9CA3AF'; // Gray
         }
     };
 
@@ -54,32 +54,43 @@ const TaskCard: React.FC<Props> = ({ task, onDragStart, deleteTask, onClick }) =
             onClick={onClick}
         >
             <div className="task-card-header">
-                <div className="priority-dot" style={{ backgroundColor: getPriorityColor(task.priority) }} />
+                <div
+                    className="priority-dot"
+                    style={{ backgroundColor: getPriorityColor(task.priority ?? "") }}
+                    title={`Priority: ${task.priority}`}
+                />
                 <h3 className="task-title">{task.title}</h3>
                 <button
                     className="delete-btn"
                     onClick={(e) => {
                         e.stopPropagation(); // Prevent modal open
-                        deleteTask(task._id);
+                        if (task._id) {
+                            deleteTask(task._id);
+                        }
                     }}
+                    title="Delete Task"
                 >
                     <Trash2 size={16} />
                 </button>
             </div>
 
-            <p className="task-description">{task.description}</p>
+            {task.description && (
+                <p className="task-description">{task.description}</p>
+            )}
 
-            <div className="task-tags">
-                {task.tags.map(tag => (
-                    <span key={tag} className="tag-pill">
-                        #{tag}
-                    </span>
-                ))}
-            </div>
+            {task.tags && task.tags.length > 0 && (
+                <div className="task-tags">
+                    {task.tags.map(tag => (
+                        <span key={tag} className="tag-pill">
+                            #{tag}
+                        </span>
+                    ))}
+                </div>
+            )}
 
             <div className="task-footer">
                 <div className="assignees">
-                    {task.assignees.map(user => (
+                    {task.assignees?.map(user => (
                         <div
                             key={user._id}
                             className="assignee-avatar"
@@ -88,10 +99,30 @@ const TaskCard: React.FC<Props> = ({ task, onDragStart, deleteTask, onClick }) =
                             {user.username.charAt(0).toUpperCase()}
                         </div>
                     ))}
+                    {task.assignedBy && (
+                        <div className="assigned-by" title={`Assigned by: ${task.assignedBy.username}`}>
+                            <UserCircle2 size={16} /> {task.assignedBy.username}
+                        </div>
+                    )}
                 </div>
-                <div className="due-date">
-                    <Calendar size={14} /> {new Date(task.dueDate).toLocaleDateString()}
-                </div>
+                {task.dueDate && (
+                    <div className="due-date">
+                        <Calendar size={14} /> {new Date(task.dueDate).toLocaleDateString()}
+                    </div>
+                )}
+            </div>
+
+            <div className="task-meta">
+                {task.column && (
+                    <span className={`status-pill status-${task.column}`}>
+                        {task.column.toUpperCase()}
+                    </span>
+                )}
+                {task.updatedAt && (
+                    <span className="meta-info" title={`Updated at: ${new Date(task.updatedAt).toLocaleString()}`}>
+                        <Clock3 size={12} /> {new Date(task.updatedAt).toLocaleDateString()}
+                    </span>
+                )}
             </div>
         </div>
     );

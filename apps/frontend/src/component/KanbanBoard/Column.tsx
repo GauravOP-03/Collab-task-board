@@ -72,7 +72,7 @@ const Column: React.FC<Props> = ({
                 ))}
             </div>
 
-            {selectedTask && (
+            {selectedTask && selectedTask.assignees && (
                 <EditTaskModal
                     task={{
                         ...selectedTask,

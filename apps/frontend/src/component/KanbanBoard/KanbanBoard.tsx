@@ -112,16 +112,27 @@ const KanbanBoard: React.FC = () => {
             );
         };
 
-        const handleUpdateColumn = (updatedTask: Partial<Task>) => {
-            setColumns(prev =>
-                prev.map(col => ({
+        const handleUpdateColumn = async () => {
+
+            try {
+                const { data: tasksResp } = await axiosInstance.get(`/tasks`);
+                const tasks: Task[] = tasksResp.data || [];
+                const updatedColumns = columnMetadata.map(col => ({
                     ...col,
-                    tasks: col.tasks
-                        .filter(t => t._id !== updatedTask._id)
-                        .concat(updatedTask.column === col.id ? [updatedTask as Task] : [])
-                }))
-            );
+                    tasks: tasks.filter(t => t.column === col.id),
+                }));
+                setColumns(updatedColumns);
+
+
+            } catch (err) {
+                console.error("Failed to fetch updated task", err);
+            }
+
+
         };
+
+
+
 
         // Attach listeners
         socket.on('task-created', handleTaskCreated);
@@ -168,10 +179,7 @@ const KanbanBoard: React.FC = () => {
 
         try {
             await axiosInstance.patch(`/tasks/${draggedTask._id}/column`, { column: newColumnId });
-            socket?.emit("update-column", {
-                _id: draggedTask._id,
-                column: newColumnId,
-            });
+            socket?.emit("update-column");
             toast.success("Task moved successfully!");
 
         } catch (e) {

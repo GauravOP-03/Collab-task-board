@@ -1,5 +1,5 @@
 function registerBoardHandlers(io, socket) {
-  console.log("Registering board handlers for", socket.id);
+  // console.log("Registering board handlers for", socket.id);
 
   socket.on("joinBoard", (boardId) => {
     socket.boardId = boardId;

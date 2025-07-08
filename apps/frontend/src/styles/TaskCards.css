@@ -1,19 +1,20 @@
 .task-card {
   background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   padding: 16px;
   margin: 8px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #e5e7eb;
 }
 
 .task-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
 }
 
 .task-card-header {
@@ -26,7 +27,7 @@
 .task-title {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #111827;
+  color: #1f2937;
   flex-grow: 1;
 }
 
@@ -51,9 +52,9 @@
 }
 
 .task-description {
-  color: #374151;
+  color: #4b5563;
   font-size: 0.95rem;
-  line-height: 1.4;
+  line-height: 1.5;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -70,20 +71,24 @@
 .tag-pill {
   background-color: #f3f4f6;
   color: #6b7280;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 .task-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .assignees {
   display: flex;
-  gap: 4px;
+  gap: 6px;
+  align-items: center;
 }
 
 .assignee-avatar {
@@ -99,6 +104,14 @@
   font-size: 0.85rem;
 }
 
+.assigned-by {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
 .due-date {
   display: flex;
   align-items: center;
@@ -107,9 +120,45 @@
   font-size: 0.85rem;
 }
 
+.task-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.status-pill {
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-todo {
+  background: #fef3c7;
+  color: #92400e;
+}
+.status-inprogress {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.status-done {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.meta-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 @media (max-width: 768px) {
   .task-card {
-    padding: 12px;
+    padding: 14px;
   }
   .task-title {
     font-size: 1rem;
