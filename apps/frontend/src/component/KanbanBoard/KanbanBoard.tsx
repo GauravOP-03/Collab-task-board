@@ -50,8 +50,8 @@ const KanbanBoard: React.FC = () => {
                 }));
                 setColumns(updatedColumns);
                 setUsers(usersResp.users);
-            } catch (e) {
-                console.error(e);
+            } catch {
+                // console.error(e);
                 toast.error("Failed to load board data.");
             } finally {
                 setIsLoading(false);
