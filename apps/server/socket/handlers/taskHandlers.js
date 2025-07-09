@@ -1,8 +1,8 @@
 function registerTaskHandlers(io, socket) {
   // console.log("Registering task handlers for", socket.id);
   socket.on("task-created", (taskData) => {
-    console.log(taskData);
-    // console.log(socket.boardId);
+    console.log("Task Created", taskData);
+    console.log(socket.boardId);
     io.to(socket.boardId).emit("task-created", taskData);
   });
 
@@ -16,6 +16,7 @@ function registerTaskHandlers(io, socket) {
   });
 
   socket.on("update-column", () => {
+    console.log(socket.boardId);
     socket.to(socket.boardId).emit("update-column");
   });
 }

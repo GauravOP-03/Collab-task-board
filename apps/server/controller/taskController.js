@@ -134,7 +134,7 @@ exports.updateTask = async (req, res) => {
     const dbTime = new Date(task.updatedAt).getTime();
     const clientTime = new Date(updatedAt).getTime();
 
-    if (clientTime !== dbTime) {
+    if (clientTime < dbTime) {
       return res.status(409).json({
         message: "Conflict detected",
         serverVersion: task,

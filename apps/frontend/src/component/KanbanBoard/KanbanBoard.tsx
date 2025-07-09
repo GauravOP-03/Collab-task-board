@@ -61,7 +61,7 @@ const KanbanBoard: React.FC = () => {
 
     // Socket setup
     useEffect(() => {
-        if (!socket || socketLoading) {
+        if (!socket || socketLoading || !user?._id) {
             if (!showConnection.current) {
                 toast('Waiting for connection to server...', { icon: '⏳' });
                 showConnection.current = true;
@@ -71,6 +71,7 @@ const KanbanBoard: React.FC = () => {
 
         // Join room (once)
         socket.emit('joinBoard', 'kanban-board');
+
 
         const handleTaskCreated = (newTask: Task) => {
             console.log(newTask)
@@ -252,6 +253,7 @@ const KanbanBoard: React.FC = () => {
             const res = await axiosInstance.put(`tasks/conflict/${task._id}`, task);
             setConflictDetected(false);
             socket?.emit("task-updated", res.data.data);
+            console.log("updated from fun", res.data.data)
         } catch (e) {
 
             console.error("Error editing task", e);

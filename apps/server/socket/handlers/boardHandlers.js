@@ -4,7 +4,7 @@ function registerBoardHandlers(io, socket) {
   socket.on("joinBoard", (boardId) => {
     socket.boardId = boardId;
     socket.join(boardId);
-    console.log(`Socket ${socket.id} joined board ${boardId}`);
+    // console.log(`Socket ${socket.id} joined board ${boardId}`);
 
     // Notify client they successfully joined
     socket.emit("joinedBoard", boardId);
