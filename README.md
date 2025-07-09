@@ -3,6 +3,7 @@
 A **full-stack, real-time Kanban board** (like Trello) built with the **MERN stack + Socket.IO**. Collaborate with your team, manage tasks seamlessly, and see live updates with features like **Smart Assign**, **Conflict Detection**, and a comprehensive **Activity Log**.
 
 > 🚀 **Live Demo:** [https://collab-task-board-frontend.vercel.app/](https://collab-task-board-frontend.vercel.app/)
+> 🎥 **Watch Overview Video:** [Project Walkthrough](https://drive.google.com/file/d/1ZVi7xLOeze4rijGJsaoVRUGSERixESBU/view?usp=drivesdk)
 
 ---
 
@@ -79,7 +80,7 @@ A **full-stack, real-time Kanban board** (like Trello) built with the **MERN sta
 | Location      | Variables                                       |
 | ------------- | ----------------------------------------------- |
 | `server/.env` | `PORT`, `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL` |
-| `client/.env` | `VITE_BACKEND_URL` , `VITE_BACKEND_URL_SOCKET`  |
+| `client/.env` | `VITE_BACKEND_URL`, `VITE_BACKEND_URL_SOCKET`   |
 
 > 🚨 **Note:** All environment variables are kept private and secured. API routes are protected using JWT.
 
@@ -144,14 +145,18 @@ collab-todo-board/
    cd apps/frontend
    pnpm dev # To start client
    cd apps/server
-   node index.js #To start Server
+   node index.js # To start server
    ```
 
 ---
 
 ## 🙌 Author
 
-Built with ❤️ by [Gaurav Kumar](https://github.com/yourusername)
+Built with ❤️ by [Gaurav Kumar](https://github.com/GauravOP-03)
 💬 Let’s connect on [LinkedIn](https://www.linkedin.com/in/gaurav-kumar-5813bb321) or open an issue to collaborate!
 
 ---
+
+## 📄 License
+
+MIT License. Free to use for personal and educational projects.
