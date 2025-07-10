@@ -211,7 +211,7 @@ exports.updateTaskColumn = async (req, res) => {
     const updatedTask = await Task.findByIdAndUpdate(
       taskId,
       { column },
-      { new: true }
+      { new: true, timestamps:false }
     ).populate("assignees", "username email");
 
     if (!updatedTask) {
