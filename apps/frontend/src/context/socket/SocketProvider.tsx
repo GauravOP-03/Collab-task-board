@@ -21,7 +21,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
             return;
         }
 
-        console.log("Creating socket connection with token...");
+        // console.log("Creating socket connection with token...");
 
         const socketInstance = io(import.meta.env.VITE_BACKEND_URL_SOCKET, {
             transports: ["websocket"],
@@ -34,13 +34,13 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
         // On connect
         socketInstance.on("connect", () => {
-            console.log("Socket connected:", socketInstance.id);
+            // console.log("Socket connected:", socketInstance.id);
             setLoading(false);
         });
 
         // On connection error
         socketInstance.on("connect_error", async (err) => {
-            console.error("Socket connection error:", err.message);
+            // console.error("Socket connection error:", err.message);
 
             if (err.message.includes("invalid token") || err.message.includes("jwt expired")) {
                 console.warn("Token expired. Trying to refresh...");
@@ -56,18 +56,18 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
                     const newAccessToken = refreshRes.data.accessToken;
                     accessToken.current = newAccessToken;
 
-                    console.log("Token refreshed. Reconnecting socket...");
+                    // console.log("Token refreshed. Reconnecting socket...");
                     socketInstance.auth = { token: newAccessToken };
                     socketInstance.connect();
                 } catch {
-                    console.error("Failed to refresh token. Disconnecting socket.");
+                    // console.error("Failed to refresh token. Disconnecting socket.");
                     socketInstance.disconnect();
                     setSocket(null);
                 } finally {
                     setLoading(false);
                 }
             } else {
-                console.error("Unhandled socket error:", err.message);
+                // console.error("Unhandled socket error:", err.message);
                 setLoading(false);
             }
         });
@@ -77,7 +77,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         });
 
         return () => {
-            console.log("Cleaning up socket connection");
+            // console.log("Cleaning up socket connection");
             socketInstance.disconnect();
             setSocket(null);
             setLoading(true);

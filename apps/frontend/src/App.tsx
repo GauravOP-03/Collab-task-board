@@ -7,10 +7,10 @@ import { AuthProvider } from "./context/auth/AuthProvider";
 
 import LoginRoute from "./routes/LoginRoute"
 import { SocketProvider } from "./context/socket/SocketProvider";
-import KanbanBoard from "./component/KanbanBoard/KanbanBoard";
+const KanbanBoard = lazy(() => import("./component/KanbanBoard/KanbanBoard"));
 import PrivateRoute from "./routes/PrivateRoute";
 import { Toaster } from "react-hot-toast";
-import NotFound from "./component/NotFound";
+const NotFound = lazy(() => import("./component/NotFound"));
 
 
 

@@ -74,7 +74,7 @@ const KanbanBoard: React.FC = () => {
 
 
         const handleTaskCreated = (newTask: Task) => {
-            console.log(newTask)
+            // console.log(newTask)
             if (newTask.assignees.some(a => a['_id'] === user?._id) || newTask.assignedBy._id === user?._id) {
                 setColumns(prev =>
                     prev.map(col => {
@@ -92,7 +92,8 @@ const KanbanBoard: React.FC = () => {
         };
 
         const handleTaskUpdated = (updatedTask: Task) => {
-            if (updatedTask.assignees.some(a => a._id === user?._id) && updatedTask.assignedBy._id === user?._id) {
+
+            if (updatedTask.assignees.some(a => a._id === user?._id) || updatedTask.assignedBy._id === user?._id) {
                 setColumns(prev =>
                     prev.map(col => ({
                         ...col,
@@ -104,7 +105,7 @@ const KanbanBoard: React.FC = () => {
         };
 
         const handleTaskDeleted = (taskId: string) => {
-            console.log('Task deleted:', taskId);
+            // console.log('Task deleted:', taskId);
             setColumns(prev =>
                 prev.map(col => ({
                     ...col,
@@ -126,6 +127,7 @@ const KanbanBoard: React.FC = () => {
 
 
             } catch (err) {
+                toast.error("Error updating column..")
                 console.error("Failed to fetch updated task", err);
             }
 
@@ -216,7 +218,7 @@ const KanbanBoard: React.FC = () => {
             setConflictDetected(false);
             socket?.emit("task-updated", res.data.data);
         } catch (e) {
-            console.error("Error editing task", e);
+            // console.error("Error editing task", e);
             const err = e as AxiosError<{ message: string, clientVersion: TaskInput, serverVersion: Task }>;
             if (err.response?.status === 409) {
                 setClientVersion(err.response.data.clientVersion);
@@ -253,7 +255,7 @@ const KanbanBoard: React.FC = () => {
             const res = await axiosInstance.put(`tasks/conflict/${task._id}`, task);
             setConflictDetected(false);
             socket?.emit("task-updated", res.data.data);
-            console.log("updated from fun", res.data.data)
+            // console.log("updated from fun", res.data.data)
         } catch (e) {
 
             console.error("Error editing task", e);
