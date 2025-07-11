@@ -15,9 +15,10 @@ function registerTaskHandlers(io, socket) {
     io.to(socket.boardId).emit("task-deleted", taskId);
   });
 
-  socket.on("update-column", () => {
+  socket.on("update-column", (task) => {
     console.log(socket.boardId);
-    socket.to(socket.boardId).emit("update-column");
+    console.log(task)
+    socket.to(socket.boardId).emit("update-column", task);
   });
 }
 

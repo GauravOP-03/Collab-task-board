@@ -92,7 +92,6 @@ const KanbanBoard: React.FC = () => {
         };
 
         const handleTaskUpdated = (updatedTask: Task) => {
-
             if (updatedTask.assignees.some(a => a._id === user?._id) || updatedTask.assignedBy._id === user?._id) {
                 setColumns(prev =>
                     prev.map(col => ({
@@ -114,22 +113,22 @@ const KanbanBoard: React.FC = () => {
             );
         };
 
-        const handleUpdateColumn = async () => {
+        const handleUpdateColumn = async (task: { column: String, draggedTask: Task }) => {
+            const { column, draggedTask } = task;
 
-            try {
-                const { data: tasksResp } = await axiosInstance.get(`/tasks`);
-                const tasks: Task[] = tasksResp.data || [];
-                const updatedColumns = columnMetadata.map(col => ({
+            setColumns(prev =>
+                prev.map(col => ({
                     ...col,
-                    tasks: tasks.filter(t => t.column === col.id),
-                }));
-                setColumns(updatedColumns);
-
-
-            } catch (err) {
-                toast.error("Error updating column..")
-                console.error("Failed to fetch updated task", err);
-            }
+                    tasks: col.tasks.filter(t => t._id !== draggedTask._id)
+                }))
+            );
+            setColumns(prev =>
+                prev.map(col =>
+                    col.id === column
+                        ? { ...col, tasks: [...col.tasks, { ...draggedTask, column: column as Task["column"] }] }
+                        : col
+                )
+            );
 
 
         };
@@ -180,9 +179,11 @@ const KanbanBoard: React.FC = () => {
             )
         );
 
+        console.log(draggedTask)
+
         try {
             await axiosInstance.patch(`/tasks/${draggedTask._id}/column`, { column: newColumnId });
-            socket?.emit("update-column");
+            socket?.emit("update-column", { column: newColumnId, draggedTask });
             toast.success("Task moved successfully!");
 
         } catch (e) {
