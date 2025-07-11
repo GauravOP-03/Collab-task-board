@@ -92,7 +92,7 @@ const KanbanBoard: React.FC = () => {
         };
 
         const handleTaskUpdated = (updatedTask: Task) => {
-            if (updatedTask.assignees.some(a => a._id === user?._id) && updatedTask.assignedBy._id !== user?._id) {
+            if (updatedTask.assignees.some(a => a._id === user?._id) && updatedTask.assignedBy._id === user?._id) {
                 setColumns(prev =>
                     prev.map(col => ({
                         ...col,
